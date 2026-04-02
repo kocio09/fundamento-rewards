@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamento Referral Rewards</title>
+<style>
+:root {
+  --bg:          #0c1220;
+  --surface:     #111927;
+  --surface2:    #17243a;
+  --border:      #1e3050;
+  --text:        #dde6f5;
+  --muted:       #5b7a99;
+  --subtle:      #8ba7c7;
+  --fundamento:  #38bdf8;
+  --accent:      #4f8ef7;
+  --green:       #34d399;
+  --orange:      #f5a833;
+}
+*{ box-sizing:border-box; margin:0; padding:0 }
+body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",sans-serif; font-size:14px; line-height:1.5 }
+
+.hdr{ padding:18px 36px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:16px; white-space:nowrap }
+.hdr-left{ display:flex; align-items:center; gap:12px; flex-shrink:0 }
+.hdr-dot{ width:9px; height:9px; border-radius:50%; background:var(--fundamento); box-shadow:0 0 8px var(--fundamento) }
+.hdr h1{ font-size:16px; font-weight:700; color:#f0f6ff; letter-spacing:-.02em }
+.hdr-meta{ font-size:12px; color:var(--muted); display:flex; gap:20px }
+.hdr-meta b{ color:var(--subtle) }
+
+.wrap{ padding:28px 36px; display:flex; flex-direction:column; gap:24px }
+
+.tab-bar{ display:flex; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:4px; width:fit-content }
+.tab-btn{
+  padding:8px 18px; border-radius:7px; border:none; background:transparent;
+  color:var(--muted); font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;
+  font-family:inherit;
+}
+.tab-btn:hover{ color:var(--text); background:var(--surface2) }
+.tab-btn.active{ color:#f0f6ff; background:var(--surface2); box-shadow:0 1px 3px rgba(0,0,0,.3) }
+
+.kpi-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px }
+.kpi{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:24px 22px 20px; position:relative; transition:box-shadow .2s;
+}
+.kpi:hover{ box-shadow:0 0 0 1px var(--border), 0 8px 32px rgba(0,0,0,.35) }
+.kpi-accent{ position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; overflow:hidden }
+.kpi-label{ font-size:11.5px; font-weight:500; color:var(--muted); letter-spacing:.04em; margin-bottom:10px }
+.kpi-num{ display:flex; align-items:baseline; gap:3px; line-height:1 }
+.kpi-num .val{ font-size:28px; font-weight:800; letter-spacing:-.04em; color:#f0f6ff; white-space:nowrap }
+.kpi-sub{ font-size:12px; color:var(--muted); margin-top:9px }
+
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:24px 26px;
+}
+.card-hdr{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px }
+.card-title{ font-size:13px; font-weight:600; color:var(--subtle) }
+.card-note{ font-size:11px; color:var(--muted); background:var(--surface2); padding:3px 8px; border-radius:6px; border:1px solid var(--border) }
+
+.tbl-wrap{ overflow-x:auto }
+table{ width:100%; border-collapse:collapse; font-size:13px }
+thead tr{ border-bottom:2px solid var(--border) }
+thead th{
+  padding:0 14px 12px; font-size:11px; font-weight:600; text-transform:uppercase;
+  letter-spacing:.06em; color:var(--muted); text-align:right; white-space:nowrap
+}
+thead th:first-child{ text-align:left }
+thead th:nth-child(2){ text-align:left }
+tbody tr{ border-bottom:1px solid rgba(30,48,80,.5); transition:background .15s }
+tbody tr:hover{ background:rgba(255,255,255,.02) }
+tbody td{ padding:12px 14px; text-align:right; font-variant-numeric:tabular-nums }
+tbody td:first-child{ text-align:left }
+tbody td:nth-child(2){ text-align:left }
+tfoot tr{ border-top:2px solid var(--border) }
+tfoot td{ padding:12px 14px; text-align:right; font-weight:700; color:#f0f6ff; font-variant-numeric:tabular-nums }
+tfoot td:first-child{ text-align:left }
+.val-strong{ font-weight:600; color:#dde6f5 }
+.zero-row{ opacity:.4 }
+.addr{ font-family:"SF Mono",SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--subtle) }
+.dot-badge{ width:9px; height:9px; border-radius:50%; flex-shrink:0; display:inline-block; vertical-align:middle; margin-right:6px }
+.eligible{ color:var(--green); font-weight:600 }
+.over-cap{ color:var(--orange); font-weight:600 }
+
+.reward-box{
+  background:linear-gradient(135deg, rgba(56,189,248,.08), rgba(79,142,247,.08));
+  border:1px solid rgba(56,189,248,.25); border-radius:14px;
+  padding:32px; text-align:center;
+}
+.reward-box .big{ font-size:42px; font-weight:900; color:var(--fundamento); letter-spacing:-.03em }
+.reward-box .label{ font-size:13px; color:var(--muted); margin-top:6px }
+
+.explainer{
+  background:var(--surface2); border:1px solid var(--border); border-radius:10px;
+  padding:16px 20px; font-size:12.5px; color:var(--subtle); line-height:1.7;
+}
+.explainer strong{ color:var(--text) }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-dot"></div>
+    <h1 id="pageTitle">Fundamento Referral Rewards</h1>
+  </div>
+  <div class="hdr-meta">
+    <span>Period: <b>Mar 3 – Mar 16, 2026</b></span>
+    <span>Days: <b>14</b></span>
+    <span>Reward: <b>3 bps</b></span>
+    <span>Organic cap: <b>35× / day</b></span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tab-bar" id="tabBar"></div>
+  <div id="content"></div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const PERIOD_DAYS = 14;
+const REWARD_BPS  = 3;
+const REWARD_RATE = REWARD_BPS / 10000;
+const DAILY_CAP_X = 35;
+
+const RAW_DATA = [
+  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:18791.313588884273, volume:268887.667187,   vol_per_day_per_value:1.0220819237080772},
+  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:870.2948020682493,  volume:178490.012152,   vol_per_day_per_value:14.649388404925697},
+  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.005745,            volume:0,               vol_per_day_per_value:0},
+  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.009852,            volume:0,               vol_per_day_per_value:0},
+  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.005779,            volume:0,               vol_per_day_per_value:0},
+  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.004886,            volume:0,               vol_per_day_per_value:0},
+  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.006995,            volume:0,               vol_per_day_per_value:0},
+  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.002865,            volume:0,               vol_per_day_per_value:0},
+];
+
+// ============================================================
+// COMPUTED
+// ============================================================
+const DATA = RAW_DATA.map(d => {
+  const dailyVol      = d.volume / PERIOD_DAYS;
+  const dailyCap      = DAILY_CAP_X * d.account_value;
+  const eligibleDaily = Math.min(dailyVol, dailyCap);
+  const eligibleTotal = eligibleDaily * PERIOD_DAYS;
+  const reward        = eligibleTotal * REWARD_RATE;
+  const organic       = dailyVol <= dailyCap;
+  return { ...d, dailyVol, dailyCap, eligibleDaily, eligibleTotal, reward, organic };
+});
+
+const fmt    = (n, dec=2) => n.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+const fmtUsd = n => '$' + fmt(n);
+const fmtX   = n => n === 0 ? '—' : fmt(n, 1) + '×';
+const truncAddr = a => a.slice(0,6) + '...' + a.slice(-4);
+
+function sumBy(arr, key) { return arr.reduce((s, d) => s + d[key], 0); }
+
+const totalVol     = sumBy(DATA, 'volume');
+const totalEligible= sumBy(DATA, 'eligibleTotal');
+const totalReward  = sumBy(DATA, 'reward');
+const totalAccts   = DATA.length;
+const activeAccts  = DATA.filter(d => d.volume > 0).length;
+
+// ============================================================
+// VIEWS
+// ============================================================
+const VIEWS = {
+  admin:      { title:'Fundamento Rewards — Admin View',  tabs:['All Volume','Eligible Volume & Rewards','Summary'] },
+  fundamento: { title:'Fundamento Referral Rewards',      tabs:['All Volume','Rewards','Summary'] }
+};
+
+function getView() {
+  const h = window.location.hash.replace('#','').toLowerCase();
+  return VIEWS[h] ? h : 'admin';
+}
+
+function renderTabs() {
+  const view = getView();
+  const cfg  = VIEWS[view];
+  document.getElementById('pageTitle').textContent = cfg.title;
+  const bar = document.getElementById('tabBar');
+  bar.innerHTML = cfg.tabs.map((t,i) =>
+    `<button class="tab-btn${i===0?' active':''}" data-tab="${i}">${t}</button>`
+  ).join('');
+  bar.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      bar.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      showTab(view, parseInt(btn.dataset.tab));
+    });
+  });
+  showTab(view, 0);
+}
+
+function showTab(view, idx) {
+  const el = document.getElementById('content');
+  if      (idx === 0) el.innerHTML = renderAllVolume();
+  else if (idx === 1) el.innerHTML = renderEligible();
+  else                el.innerHTML = renderSummary(view === 'admin');
+}
+
+// ============================================================
+// TAB 1: All Volume
+// ============================================================
+function renderAllVolume() {
+  const sorted = [...DATA].sort((a,b) => b.volume - a.volume);
+  const rows = sorted.map(d => {
+    const cls = d.volume === 0 ? ' class="zero-row"' : '';
+    return `<tr${cls}>
+      <td class="addr">${truncAddr(d.l1_address)}</td>
+      <td><span class="dot-badge" style="background:var(--fundamento)"></span>${d.referral_code}</td>
+      <td>${fmtUsd(d.account_value)}</td>
+      <td class="val-strong">${fmtUsd(d.volume)}</td>
+      <td>${fmtX(d.vol_per_day_per_value)}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="explainer">
+    All volume generated by accounts in Fundamento's referral tree during this period.
+    <strong>Volume</strong> = prior + web + mobile app volume combined.
+    <strong>Daily Multiple</strong> = average daily volume relative to account value.
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-hdr">
+      <div class="card-title">All Referred Accounts — ${totalAccts} total</div>
+      <div class="card-note">${activeAccts} with volume</div>
+    </div>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Address</th>
+        <th>Referral Code</th>
+        <th>Account Value</th>
+        <th>Volume</th>
+        <th>Daily Multiple</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr>
+        <td>TOTAL</td>
+        <td></td>
+        <td>${fmtUsd(sumBy(DATA,'account_value'))}</td>
+        <td>${fmtUsd(totalVol)}</td>
+        <td></td>
+      </tr></tfoot>
+    </table>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// TAB 2: Eligible Volume & Rewards
+// ============================================================
+function renderEligible() {
+  const sorted = [...DATA].sort((a,b) => b.volume - a.volume);
+  const rows = sorted.map(d => {
+    const cls    = d.volume === 0 ? ' class="zero-row"' : '';
+    const status = d.volume === 0 ? '—' :
+      (d.organic
+        ? '<span class="eligible">Organic</span>'
+        : '<span class="over-cap">Capped at ' + DAILY_CAP_X + '×</span>');
+    return `<tr${cls}>
+      <td class="addr">${truncAddr(d.l1_address)}</td>
+      <td><span class="dot-badge" style="background:var(--fundamento)"></span>${d.referral_code}</td>
+      <td>${fmtUsd(d.account_value)}</td>
+      <td>${fmtUsd(d.volume)}</td>
+      <td>${fmtX(d.vol_per_day_per_value)}</td>
+      <td class="val-strong">${fmtUsd(d.eligibleTotal)}</td>
+      <td class="val-strong">${fmtUsd(d.reward)}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="explainer">
+    Rewards are calculated at <strong>${REWARD_BPS} bps (${(REWARD_RATE*100).toFixed(2)}%)</strong> of eligible volume.
+    To reward organic activity, daily volume per account is recognized up to <strong>${DAILY_CAP_X}× account value</strong>.
+    Volume within this threshold is fully rewarded.
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-hdr">
+      <div class="card-title">Eligible Volume & Rewards</div>
+      <div class="card-note">${DAILY_CAP_X}× organic threshold</div>
+    </div>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Address</th>
+        <th>Referral Code</th>
+        <th>Account Value</th>
+        <th>Volume</th>
+        <th>Daily Multiple</th>
+        <th>Eligible Volume</th>
+        <th>Reward (${REWARD_BPS} bps)</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr>
+        <td>TOTAL</td>
+        <td></td>
+        <td>${fmtUsd(sumBy(DATA,'account_value'))}</td>
+        <td>${fmtUsd(totalVol)}</td>
+        <td></td>
+        <td>${fmtUsd(totalEligible)}</td>
+        <td>${fmtUsd(totalReward)}</td>
+        <td></td>
+      </tr></tfoot>
+    </table>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// TAB 3: Summary
+// ============================================================
+function renderSummary(isAdmin) {
+  return `
+  <div class="reward-box">
+    <div class="big">${fmtUsd(totalReward)}</div>
+    <div class="label">${isAdmin ? 'Total Reward Owed to Fundamento' : 'Your Total Reward'} — Mar 3 to Mar 16, 2026</div>
+    <div class="label" style="margin-top:4px;font-size:11px">${REWARD_BPS} bps on ${fmtUsd(totalEligible)} eligible volume &middot; ${PERIOD_DAYS} days</div>
+  </div>
+
+  <div class="kpi-grid" style="margin-top:24px">
+    <div class="kpi">
+      <div class="kpi-accent" style="background:var(--fundamento)"></div>
+      <div class="kpi-label">TOTAL VOLUME</div>
+      <div class="kpi-num"><span class="val">${fmtUsd(totalVol)}</span></div>
+      <div class="kpi-sub">All ${totalAccts} accounts</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent" style="background:var(--fundamento)"></div>
+      <div class="kpi-label">ELIGIBLE VOLUME</div>
+      <div class="kpi-num"><span class="val">${fmtUsd(totalEligible)}</span></div>
+      <div class="kpi-sub">Within ${DAILY_CAP_X}× organic threshold</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent" style="background:var(--accent)"></div>
+      <div class="kpi-label">TOTAL REWARD</div>
+      <div class="kpi-num"><span class="val">${fmtUsd(totalReward)}</span></div>
+      <div class="kpi-sub">${REWARD_BPS} bps of eligible volume</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-accent" style="background:var(--green)"></div>
+      <div class="kpi-label">ACTIVE ACCOUNTS</div>
+      <div class="kpi-num"><span class="val">${activeAccts}</span></div>
+      <div class="kpi-sub">of ${totalAccts} total</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="card-hdr"><div class="card-title">By Account</div></div>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Address</th>
+        <th>Referral Code</th>
+        <th>Account Value</th>
+        <th>Volume</th>
+        <th>Eligible Volume</th>
+        <th>Reward</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody>${[...DATA].sort((a,b)=>b.volume-a.volume).map(d => {
+        const cls    = d.volume === 0 ? ' class="zero-row"' : '';
+        const status = d.volume === 0 ? '—' :
+          (d.organic ? '<span class="eligible">Organic</span>' : '<span class="over-cap">Capped at '+DAILY_CAP_X+'×</span>');
+        return `<tr${cls}>
+          <td class="addr">${truncAddr(d.l1_address)}</td>
+          <td><span class="dot-badge" style="background:var(--fundamento)"></span>${d.referral_code}</td>
+          <td>${fmtUsd(d.account_value)}</td>
+          <td>${fmtUsd(d.volume)}</td>
+          <td class="val-strong">${fmtUsd(d.eligibleTotal)}</td>
+          <td class="val-strong">${fmtUsd(d.reward)}</td>
+          <td>${status}</td>
+        </tr>`;
+      }).join('')}</tbody>
+      <tfoot><tr>
+        <td>TOTAL</td>
+        <td></td>
+        <td>${fmtUsd(sumBy(DATA,'account_value'))}</td>
+        <td>${fmtUsd(totalVol)}</td>
+        <td>${fmtUsd(totalEligible)}</td>
+        <td>${fmtUsd(totalReward)}</td>
+        <td></td>
+      </tr></tfoot>
+    </table>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('hashchange', renderTabs);
+renderTabs();
+</script>
+</body>
+</html>
