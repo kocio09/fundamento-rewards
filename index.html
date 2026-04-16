@@ -106,8 +106,8 @@ tfoot td:first-child{ text-align:left }
     <h1 id="pageTitle">Fundamento Referral Rewards</h1>
   </div>
   <div class="hdr-meta">
-    <span>Period: <b>Mar 3 – Mar 16, 2026</b></span>
-    <span>Days: <b>14</b></span>
+    <span>Period: <b>Mar 3 – Apr 3, 2026</b></span>
+    <span>Days: <b>31</b></span>
     <span>Reward: <b>3 bps</b></span>
     <span>Organic cap: <b>35× / day</b></span>
   </div>
@@ -122,20 +122,20 @@ tfoot td:first-child{ text-align:left }
 // ============================================================
 // DATA
 // ============================================================
-const PERIOD_DAYS = 14;
+const PERIOD_DAYS = 31;
 const REWARD_BPS  = 3;
 const REWARD_RATE = REWARD_BPS / 10000;
 const DAILY_CAP_X = 35;
 
 const RAW_DATA = [
-  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:18791.313588884273, volume:268887.667187,   vol_per_day_per_value:1.0220819237080772},
-  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:870.2948020682493,  volume:178490.012152,   vol_per_day_per_value:14.649388404925697},
-  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.005745,            volume:0,               vol_per_day_per_value:0},
-  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.009852,            volume:0,               vol_per_day_per_value:0},
-  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.005779,            volume:0,               vol_per_day_per_value:0},
-  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.004886,            volume:0,               vol_per_day_per_value:0},
-  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.006995,            volume:0,               vol_per_day_per_value:0},
-  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.002865,            volume:0,               vol_per_day_per_value:0},
+  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:23447.59811991141, volume:377896.47871, vol_per_day_per_value:0.5198915866906378},
+  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:2337.182449554362, volume:227596.237065, vol_per_day_per_value:3.1413097853232865},
+  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.005745, volume:0, vol_per_day_per_value:0},
+  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.009852, volume:0, vol_per_day_per_value:0},
+  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.005779, volume:0, vol_per_day_per_value:0},
+  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.004886, volume:0, vol_per_day_per_value:0},
+  {l1_address:"0x0258897878A27d8304C1B4c9b4E1c83b06C14093", referral_code:"FUNDAMENTO", account_value:0.006995, volume:0, vol_per_day_per_value:0},
+  {l1_address:"0x17eeaa628BD3Bd212100a87C9709fD4d66152584", referral_code:"FUNDAMENTO", account_value:0.002865, volume:0, vol_per_day_per_value:0},
 ];
 
 // ============================================================
@@ -320,7 +320,7 @@ function renderSummary(isAdmin) {
   return `
   <div class="reward-box">
     <div class="big">${fmtUsd(totalReward)}</div>
-    <div class="label">${isAdmin ? 'Total Reward Owed to Fundamento' : 'Your Total Reward'} — Mar 3 to Mar 16, 2026</div>
+    <div class="label">${isAdmin ? 'Total Reward Owed to Fundamento' : 'Your Total Reward'} — Mar 3 to Apr 3, 2026</div>
     <div class="label" style="margin-top:4px;font-size:11px">${REWARD_BPS} bps on ${fmtUsd(totalEligible)} eligible volume &middot; ${PERIOD_DAYS} days</div>
   </div>
 
